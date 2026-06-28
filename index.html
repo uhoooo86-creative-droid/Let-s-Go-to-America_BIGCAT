@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐱 Big Cat AI Teacher</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #5bb8f5;
+    --sky-light: #c8e8fc;
+    --sky-dark: #3a90cc;
+    --cream: #fff9f0;
+    --yellow: #ffd93d;
+    --yellow-dark: #f4a800;
+    --pink: #ffb3c6;
+    --mint: #b8f0d8;
+    --coral: #ff8a7a;
+    --white: #ffffff;
+    --text: #2a4a6a;
+    --text-light: #6a8aaa;
+    --shadow: rgba(91,184,245,0.35);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', 'Noto Sans KR', sans-serif;
+    background: linear-gradient(160deg, #e0f3ff 0%, #f5fbff 40%, #fff0f8 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 60px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Floating bubbles bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(91,184,245,0.12) 0%, transparent 40%),
+      radial-gradient(circle at 85% 70%, rgba(255,179,198,0.15) 0%, transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(184,240,216,0.1) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; width: 100%; max-width: 380px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+
+  /* ── HEADER ── */
+  .header { text-align: center; }
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 2.5px solid var(--sky-light);
+    border-radius: 999px;
+    padding: 6px 18px 6px 10px;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 0 var(--sky-light);
+  }
+  .cat-face {
+    width: 34px; height: 34px;
+    background: linear-gradient(145deg, #ffd93d, #ffb830);
+    border-radius: 50%;
+    border: 2px solid #f4a800;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .cat-face::before, .cat-face::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 9px solid #f4a800;
+  }
+  .cat-face::before { left: 2px; transform: rotate(-15deg); }
+  .cat-face::after { right: 2px; transform: rotate(15deg); }
+
+  .header-title { font-size: 15px; font-weight: 900; color: var(--sky-dark); letter-spacing: 0.03em; }
+  .header-sub { font-size: 12px; color: var(--text-light); font-weight: 700; margin-top: 2px; }
+
+  /* ── VENDING MACHINE ── */
+  .machine {
+    width: 340px;
+    background: linear-gradient(180deg, #d6ecff 0%, #bfd9f5 100%);
+    border-radius: 32px;
+    border: 3.5px solid #a0c8ea;
+    padding: 18px 16px 16px;
+    box-shadow: 0 10px 0 #90b8d8, 0 14px 0 rgba(144,184,216,0.25), 0 0 40px rgba(91,184,245,0.15);
+    position: relative;
+  }
+
+  /* Rivets */
+  .rivet {
+    position: absolute;
+    width: 10px; height: 10px;
+    background: radial-gradient(circle at 35% 35%, #d0e8ff, #90b8d8);
+    border-radius: 50%;
+    border: 1.5px solid #7aaac8;
+  }
+  .rivet.tl { top: 10px; left: 12px; }
+  .rivet.tr { top: 10px; right: 12px; }
+  .rivet.bl { bottom: 26px; left: 12px; }
+  .rivet.br { bottom: 26px; right: 12px; }
+
+  /* Screen */
+  .screen {
+    background: linear-gradient(180deg, #e8f5ff, #d8eeff);
+    border-radius: 18px;
+    border: 2.5px solid #96c4e8;
+    padding: 14px 12px 12px;
+    margin-bottom: 12px;
+    box-shadow: inset 0 3px 8px rgba(0,0,0,0.08);
+  }
+  .screen-label {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 900;
+    color: var(--sky-dark);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* Slot grid */
+  .slot-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 7px;
+  }
+  .slot-btn {
+    background: linear-gradient(180deg, #ffffff, #f0f8ff);
+    border: 2px solid #b0d4ee;
+    border-radius: 12px;
+    padding: 8px 2px 6px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    transition: all 0.12s;
+    box-shadow: 0 3px 0 #98c0de;
+    position: relative;
+    overflow: hidden;
+  }
+  .slot-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 0 #88b0ce; }
+  .slot-btn:active, .slot-btn.pressed {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #98c0de;
+    background: linear-gradient(180deg, #ffd93d, #ffc520);
+    border-color: #f4a800;
+  }
+  .slot-emoji { font-size: 20px; line-height: 1; }
+  .slot-en { font-size: 7.5px; font-weight: 900; color: #5596c8; line-height: 1.1; text-align: center; }
+  .slot-kr { font-size: 7px; font-weight: 700; color: #88aacc; line-height: 1.1; text-align: center; }
+
+  /* Dispense tray */
+  .tray {
+    background: #152535;
+    border-radius: 14px;
+    height: 46px;
+    border: 2.5px solid #0d1c2a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+  .tray-idle { color: #2a4a6a; font-size: 11px; font-weight: 700; }
+  .tray-active {
+    color: var(--yellow);
+    font-size: 12px;
+    font-weight: 900;
+    animation: slideUp 0.4s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* Side decorations */
+  .side-dots {
+    position: absolute;
+    right: -18px;
+    top: 30%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .side-dot {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2.5px solid rgba(0,0,0,0.1);
+    box-shadow: 0 3px 0 rgba(0,0,0,0.12);
+  }
+
+  /* Feet */
+  .feet { display: flex; justify-content: center; gap: 28px; margin-top: 6px; }
+  .foot {
+    width: 36px; height: 16px;
+    background: linear-gradient(180deg, #bcd8f0, #a8c8e0);
+    border-radius: 0 0 14px 14px;
+    border: 2.5px solid #90b8d0;
+    border-top: none;
+  }
+
+  /* ── INPUT ── */
+  .input-wrap {
+    width: 340px;
+    background: white;
+    border-radius: 20px;
+    border: 2.5px solid var(--sky-light);
+    padding: 10px 10px 10px 16px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    box-shadow: 0 5px 0 #c0dff5;
+  }
+  .input-wrap input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    color: var(--text);
+    font-family: inherit;
+    background: transparent;
+  }
+  .input-wrap input::placeholder { color: #aaccee; }
+  .send-btn {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #5bb8f5, #40a0e0);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    box-shadow: 0 3px 0 #2888cc;
+    flex-shrink: 0;
+  }
+  .send-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 0 #2888cc; }
+  .send-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 #2888cc; }
+  .send-btn:disabled { background: #c8e4f8; box-shadow: 0 2px 0 #b0d0e8; cursor: not-allowed; }
+
+  /* ── CHAT ── */
+  .chat-area {
+    width: 340px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 4px;
+  }
+
+  .msg-row { display: flex; gap: 8px; align-items: flex-start; }
+  .msg-row.user { justify-content: flex-end; }
+
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffd93d, #ffb830);
+    border: 2.5px solid white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    box-shadow: 0 3px 6px rgba(255,184,48,0.35);
+    position: relative;
+  }
+  .avatar::before, .avatar::after {
+    content: '';
+    position: absolute;
+    top: -7px;
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 8px solid #ffb830;
+  }
+  .avatar::before { left: 2px; transform: rotate(-12deg); }
+  .avatar::after { right: 2px; transform: rotate(12deg); }
+
+  .bubble {
+    max-width: 85%;
+    padding: 12px 15px;
+    border-radius: 4px 18px 18px 18px;
+    background: white;
+    border: 2px solid #d8eeff;
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    word-break: break-word;
+    box-shadow: 0 4px 0 #d0e8f8;
+  }
+  .bubble.user {
+    background: linear-gradient(135deg, #5bb8f5, #78c8f8);
+    border: none;
+    border-radius: 18px 18px 4px 18px;
+    color: white;
+    box-shadow: 0 4px 0 rgba(91,184,245,0.4);
+  }
+
+  /* Big Cat Tip special styling */
+  .tip-card {
+    background: linear-gradient(135deg, #fff9e8, #fff3cc);
+    border: 2.5px solid var(--yellow);
+    border-radius: 18px;
+    padding: 14px 16px;
+    margin-top: 6px;
+    box-shadow: 0 4px 0 #f4c840;
+    position: relative;
+    overflow: hidden;
+  }
+  .tip-card::before {
+    content: '✨';
+    position: absolute;
+    top: -4px; right: 10px;
+    font-size: 28px;
+    opacity: 0.25;
+  }
+  .tip-title {
+    font-size: 13px;
+    font-weight: 900;
+    color: #c87800;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tip-quote {
+    font-size: 12.5px;
+    color: #a86000;
+    font-style: italic;
+    font-weight: 700;
+    border-left: 3px solid var(--yellow);
+    padding-left: 10px;
+    margin: 6px 0 8px;
+    line-height: 1.6;
+  }
+  .tip-body {
+    font-size: 12.5px;
+    color: #7a5000;
+    line-height: 1.7;
+  }
+
+  /* typing dots */
+  .typing { display: flex; gap: 5px; align-items: center; padding: 12px 16px; }
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--sky);
+    animation: bounce 1.2s infinite;
+  }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%,60%,100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  /* Section headers inside bubble */
+  .section-header {
+    font-weight: 900;
+    color: var(--sky-dark);
+    font-size: 13px;
+    margin: 10px 0 3px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .hint { text-align: center; font-size: 11px; color: #aaccee; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-badge">
+      <div class="cat-face">🐱</div>
+      <div>
+        <div class="header-title">BIG CAT AI TEACHER</div>
+      </div>
+    </div>
+    <div class="header-sub">수업 고민 시간 90% 절감 · 자판기처럼 바로 처방!</div>
+  </div>
+
+  <!-- VENDING MACHINE -->
+  <div class="machine">
+    <div class="rivet tl"></div><div class="rivet tr"></div>
+    <div class="rivet bl"></div><div class="rivet br"></div>
+
+    <div class="side-dots">
+      <div class="side-dot" style="background:#ff6b6b;"></div>
+      <div class="side-dot" style="background:#ffd93d;"></div>
+      <div class="side-dot" style="background:#6bcfff;"></div>
+    </div>
+
+    <div class="screen">
+      <div class="screen-label">🎰 오늘의 수업 뽑기 — Choose Your Lesson!</div>
+      <div class="slot-grid" id="slotGrid"></div>
+    </div>
+
+    <div class="tray" id="tray">
+      <span class="tray-idle">▼ 수업 처방이 여기서 나옵니다 ▼</span>
+    </div>
+
+    <div class="feet"><div class="foot"></div><div class="foot"></div></div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="input-wrap">
+    <input id="userInput" type="text" placeholder="직접 입력하세요 / Type your question..." />
+    <button class="send-btn" id="sendBtn" onclick="sendMsg()">➤</button>
+  </div>
+  <div class="hint">Enter로 전송 · Shift+Enter 줄바꿈</div>
+
+  <!-- CHAT -->
+  <div class="chat-area" id="chatArea"></div>
+</div>
+
+<script>
+const SLOTS = [
+  { emoji:'🎨', en:'Colors',   kr:'색깔',   prompt:'색깔(colors) 주제로 유아영어 수업 처방해줘. 한국어와 영어 둘 다 사용해서 답변해줘.' },
+  { emoji:'🐾', en:'Animals',  kr:'동물',   prompt:'동물(animals) 주제로 유아영어 수업 처방해줘. 한국어와 영어 둘 다 사용해서 답변해줘.' },
+  { emoji:'🍎', en:'Food',     kr:'음식',   prompt:'음식(food) 주제로 유아영어 수업 처방해줘. 한국어와 영어 둘 다 사용해서 답변해줘.' },
+  { emoji:'🏠', en:'Home',     kr:'집/가구', prompt:'집과 가구(home & furniture) 주제로 유아영어 수업 처방해줘. 한국어와 영어 둘 다 사용해서 답변해줘.' },
+  { emoji:'🌈', en:'Shapes',   kr:'모양',   prompt:'모양과 숫자(shapes & numbers) 주제로 유아영어 수업 처방해줘. 한국어와 영어 둘 다 사용해서 답변해줘.' },
+  { emoji:'👗', en:'Clothes',  kr:'옷',     prompt:'옷(clothes) 주제로 유아영어 수업 처방해줘. 한국어와 영어 둘 다 사용해서 답변해줘.' },
+  { emoji:'📦', en:'Product',  kr:'상품화', prompt:'상품화' },
+  { emoji:'📸', en:'Instagram',kr:'인스타', prompt:'인스타' },
+  { emoji:'👨‍👩‍👧', en:'Open Class',kr:'공개수업',prompt:'공개수업' },
+  { emoji:'📝', en:'Eval',     kr:'평가',   prompt:'평가' },
+];
+
+const SYSTEM = `당신은 BIG CAT AI TEACHER입니다.
+유아영어 선생님의 수업 고민 시간을 90% 줄이는 것이 목표입니다.
+항상 한국어와 영어를 함께 사용해서 답변합니다 (한글 설명 + 영어 표현/활동명).
+바로 쓸 수 있는 결과만 제공합니다. 긴 설명은 하지 않습니다.
+
+일반 수업 문의 시 이 형식으로 답변합니다:
+
+[오늘의 수업 처방 · Today's Lesson Prescription]
+
+🎯 추천 레벨 / Recommended Level
+🔥 오늘의 분위기 / Today's Vibe
+🎵 추천 도입 / Warm-up
+🏃 몸쓰기 활동 / Movement Activity
+🎲 메인 게임 / Main Game
+✂️ 교구 아이디어 / Craft Idea
+🎤 추천 음원 / Song Pick
+⭐ 학부모가 좋아할 포인트 / Parent Win
+
+규칙:
+1. 흔한 활동 금지
+2. 빅캣 스타일 창의적 아이디어 최소 1개
+3. 5분 내 준비 가능
+4. 짧고 명확하게
+5. 아이들이 웃을 장면 반드시 포함
+6. 기본 교실 재료만 사용
+7. 반드시 마지막에 🐱 빅캣 한 스푼 섹션 추가
+
+🐱 빅캣 한 스푼 형식 (항상 이 형식 그대로):
+---BIGTIP_START---
+[인용문: 선생님이 조금만 오버하면 아이들이 3배 더 좋아합니다.]
+[아이디어: 해당 수업에서 쓸 수 있는 구체적이고 재미있는 오버 연기 아이디어]
+---BIGTIP_END---
+
+"상품화" 입력 시:
+[상품화 버전 · Product Version]
+상품명(KR/EN) / 구성품 / 음원 구성 / 교구 구성 / 판매 포인트 / 인스타 문구 / 썸네일 문구
+
+"인스타" 입력 시:
+[인스타 콘텐츠]
+3줄 훅(KR+EN) / 본문 / 댓글 유도
+
+"공개수업" 입력 시:
+[공개수업 플랜]
+부모 참여 포인트 / 영어 표현(학부모용) / 사진 포인트 / 감동 포인트
+
+"평가" 입력 시:
+[학생 평가]
+생활기록부 스타일(KR) / 학부모 상담 스타일(KR+EN) / 한줄 코멘트`;
+
+let messages = [];
+let loading = false;
+
+// Build slot buttons
+const grid = document.getElementById('slotGrid');
+SLOTS.forEach((s, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'slot-btn';
+  btn.id = 'slot-' + i;
+  btn.innerHTML = `<span class="slot-emoji">${s.emoji}</span><span class="slot-en">${s.en}</span><span class="slot-kr">${s.kr}</span>`;
+  btn.onclick = () => handleSlot(s, i);
+  grid.appendChild(btn);
+});
+
+function handleSlot(slot, idx) {
+  if (loading) return;
+  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('pressed'));
+  document.getElementById('slot-' + idx).classList.add('pressed');
+
+  const tray = document.getElementById('tray');
+  tray.innerHTML = `<span class="tray-active">🎁 ${slot.kr} 수업 처방 중...</span>`;
+
+  setTimeout(() => { sendMessage(slot.prompt); }, 600);
+}
+
+document.getElementById('userInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+});
+
+function sendMsg() {
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text || loading) return;
+  input.value = '';
+  sendMessage(text);
+}
+
+function sendMessage(text) {
+  if (loading) return;
+  loading = true;
+  document.getElementById('sendBtn').disabled = true;
+  document.querySelectorAll('.slot-btn').forEach(b => b.disabled = true);
+
+  // Add user bubble
+  messages.push({ role: 'user', content: text });
+  appendBubble('user', text);
+
+  // Typing indicator
+  const typingId = 'typing-' + Date.now();
+  appendTyping(typingId);
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1000,
+      system: SYSTEM,
+      messages: messages
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    const reply = data.content?.find(b => b.type === 'text')?.text || '오류가 발생했어요. 다시 시도해주세요!';
+    messages.push({ role: 'assistant', content: reply });
+    removeTyping(typingId);
+    appendAssistantMsg(reply);
+  })
+  .catch(() => {
+    removeTyping(typingId);
+    appendBubble('assistant', '⚠️ 연결 오류! 잠시 후 다시 시도해주세요.');
+  })
+  .finally(() => {
+    loading = false;
+    document.getElementById('sendBtn').disabled = false;
+    document.querySelectorAll('.slot-btn').forEach(b => { b.disabled = false; b.classList.remove('pressed'); });
+    document.getElementById('tray').innerHTML = '<span class="tray-idle">▼ 수업 처방이 여기서 나옵니다 ▼</span>';
+  });
+}
+
+function appendBubble(role, text) {
+  const chat = document.getElementById('chatArea');
+  const row = document.createElement('div');
+  row.className = 'msg-row ' + role;
+
+  if (role === 'assistant') {
+    const av = document.createElement('div');
+    av.className = 'avatar';
+    av.textContent = '🐱';
+    row.appendChild(av);
+  }
+
+  const bub = document.createElement('div');
+  bub.className = 'bubble ' + role;
+  bub.textContent = text;
+  row.appendChild(bub);
+  chat.appendChild(row);
+  row.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function appendAssistantMsg(text) {
+  const chat = document.getElementById('chatArea');
+  const row = document.createElement('div');
+  row.className = 'msg-row assistant';
+
+  const av = document.createElement('div');
+  av.className = 'avatar';
+  av.textContent = '🐱';
+  row.appendChild(av);
+
+  // Check for Big Cat Tip
+  const tipMatch = text.match(/---BIGTIP_START---([\s\S]*?)---BIGTIP_END---/);
+
+  const mainText = tipMatch ? text.replace(/---BIGTIP_START---[\s\S]*?---BIGTIP_END---/, '').trim() : text;
+
+  const wrapper = document.createElement('div');
+  wrapper.style.display = 'flex';
+  wrapper.style.flexDirection = 'column';
+  wrapper.style.gap = '8px';
+  wrapper.style.maxWidth = '85%';
+
+  if (mainText) {
+    const bub = document.createElement('div');
+    bub.className = 'bubble';
+    bub.textContent = mainText;
+    wrapper.appendChild(bub);
+  }
+
+  if (tipMatch) {
+    const tipRaw = tipMatch[1].trim();
+    const quoteMatch = tipRaw.match(/\[인용문:\s*(.*?)\]/s);
+    const ideaMatch = tipRaw.match(/\[아이디어:\s*(.*?)\]/s);
+
+    const card = document.createElement('div');
+    card.className = 'tip-card';
+    card.innerHTML = `
+      <div class="tip-title">🐱 빅캣 한 스푼 · Big Cat Tip</div>
+      ${quoteMatch ? `<div class="tip-quote">"${quoteMatch[1].trim()}"</div>` : ''}
+      ${ideaMatch ? `<div class="tip-body">💡 ${ideaMatch[1].trim()}</div>` : ''}
+    `;
+    wrapper.appendChild(card);
+  }
+
+  row.appendChild(wrapper);
+  chat.appendChild(row);
+  row.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function appendTyping(id) {
+  const chat = document.getElementById('chatArea');
+  const row = document.createElement('div');
+  row.className = 'msg-row assistant';
+  row.id = id;
+
+  const av = document.createElement('div');
+  av.className = 'avatar';
+  av.textContent = '🐱';
+  row.appendChild(av);
+
+  const bub = document.createElement('div');
+  bub.className = 'bubble';
+  bub.innerHTML = '<div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  row.appendChild(bub);
+  chat.appendChild(row);
+  row.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function removeTyping(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+</script>
+</body>
+</html>
